@@ -229,3 +229,45 @@ export type StaffStat = { totalStaff: number; techStaff: number; inventoryStaff:
 export type EquipmentStat = { totalEquipment: number; activeEquipment: number; nearlyFullEquipment: number; maintenanceEquipment: number };
 export type BloodTypeStat = { bloodType: string; rhFactor: string; total: number };
 export type BloodInventoryStat = { totalBloodBag: number; pendingTestBloodBag: number; expiringBloodBag: number; expiredBloodBag: number };
+
+// ---- Hospital portal
+export type HospitalDashboard = { pendingApprovalCount: number; inTransitCount: number; recentRequests: BloodRequestSummary[] };
+export type RejectedBag = { bloodBagId: number; reason: string };
+
+// ---- Donor portal
+export type DonorHealthRecord = { bloodType: string | null; rhFactor: string | null; totalDonation: number; totalVolumeMl: number };
+export type DonorHistory = { history: DonationHistoryItem[] };
+export type TicketSummary = {
+  registrationId: number;
+  eventId: number;
+  eventName: string;
+  startDate: string;
+  status: EventStatus;
+  registrationStatus: RegistrationStatus;
+};
+export type Ticket = {
+  eventName: string;
+  ticketCode: string;
+  qrCode: string;
+  location: string;
+  startDate: string;
+  endDate: string;
+  donorName: string;
+  status: RegistrationStatus;
+};
+export type DonationDetail = {
+  registrationId: number;
+  eventName: string;
+  donationDate: string;
+  location: string;
+  expectedVolume: number | null;
+  actualVolume: number | null;
+  status: RegistrationStatus;
+  rejectionReason: string | null;
+  screeningInfo: { weight: number; hemoglobin: number; bloodPressure: string; heartRate: number } | null;
+  testResultInfo: {
+    hiv: TestValue; hbv: TestValue; hcv: TestValue; syphilis: TestValue; malaria: TestValue;
+    finalConclusion: string | null;
+    resultDate: string | null;
+  } | null;
+};

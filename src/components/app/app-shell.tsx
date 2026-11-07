@@ -19,10 +19,14 @@ export type NavItem = { href: string; label: string; icon: LucideIcon; exact?: b
 
 function NavLinks({ items, onNavigate }: { items: NavItem[]; onNavigate?: () => void }) {
   const pathname = usePathname();
+  const matches = (item: NavItem) =>
+    item.exact ? pathname === item.href : pathname === item.href || pathname.startsWith(item.href + "/");
+  // Only the most specific match is highlighted (e.g. "/requests/new" over "/requests").
+  const activeHref = items.filter(matches).sort((a, b) => b.href.length - a.href.length)[0]?.href;
   return (
     <nav className="grid gap-1">
       {items.map((item) => {
-        const active = item.exact ? pathname === item.href : pathname === item.href || pathname.startsWith(item.href + "/");
+        const active = item.href === activeHref;
         return (
           <Link
             key={item.href}

@@ -10,9 +10,9 @@ New web client for [BloodBankManager](https://github.com/kiins3/BloodBankManager
 |---|---|
 | Public site: landing page, upcoming campaigns, sign up, log in, password reset by email OTP | ✅ Done |
 | Admin: dashboard with charts, campaigns and staff assignment, staff, hospitals, donors, blood inventory, storage equipment, audit log | ✅ Done |
-| Hospital: blood requests and delivery tracking | ⏳ Next |
-| Donor: campaigns, QR tickets, donation history, lab results | ⏳ Next |
-| Staff: reception (QR check-in), screening, collection, lab, separation, storage, distribution | ⏳ Planned |
+| Hospital: dashboard, blood requests (urgent or normal, edit once, cancel), delivery tracking, confirm receipt bag by bag with return reasons | ✅ Done |
+| Donor: campaigns and sign-up (84-day rule shown up front), QR tickets, donation history with screening and lab results, profile | ✅ Done |
+| Staff: reception (QR check-in), screening, collection, lab, separation, storage, distribution | ⏳ Next |
 
 ## Run locally
 
@@ -42,13 +42,17 @@ src/
 ├── app/
 │   ├── page.tsx              landing page
 │   ├── (auth)/               login, register, forgot-password
-│   └── admin/                admin portal
+│   ├── admin/                admin portal
+│   ├── hospital/             hospital portal
+│   └── donor/                donor portal
 ├── components/
 │   ├── ui/                   shadcn/ui components
 │   ├── app/                  shell, badges, stat cards, dialogs, pagination
 │   ├── admin/                admin forms
+│   ├── hospital/             request form, progress, receive dialog
+│   ├── donor/                event card, register button, QR ticket
 │   └── landing/
-├── hooks/                    session, mutations
+├── hooks/                    session, mutations, donor data
 └── lib/                      api client, auth, types, formatting
 ```
 

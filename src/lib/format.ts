@@ -160,3 +160,17 @@ export function toInputDateTime(value?: string | null) {
 export function percent(part: number, total: number) {
   return total > 0 ? Math.min(100, Math.round((part / total) * 100)) : 0;
 }
+
+/** "A+", "A-", … "O-" for selects. */
+export const BLOOD_GROUPS = BLOOD_TYPES.flatMap((t) => ["+", "-"].map((rh) => `${t}${rh}`));
+
+/** Local date as "yyyy-MM-dd" for <input type="date">. */
+export function toInputDate(d: Date) {
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+}
+
+export function addDays(value: string | Date, days: number) {
+  const d = new Date(value);
+  d.setDate(d.getDate() + days);
+  return d;
+}
