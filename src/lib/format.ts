@@ -174,3 +174,9 @@ export function addDays(value: string | Date, days: number) {
   d.setDate(d.getDate() + days);
   return d;
 }
+
+export const returnAction: Record<"DANG_CHO" | "TIEU_HUY" | "KIEM_DINH", Label> = {
+  DANG_CHO: { label: "Chờ kiểm tra", tone: "amber" },
+  TIEU_HUY: { label: "Chuyển tiêu hủy", tone: "red" },
+  KIEM_DINH: { label: "Chờ kiểm định", tone: "violet" },
+};

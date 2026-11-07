@@ -1,7 +1,9 @@
 "use client";
 
 import { Building2, CalendarHeart, Droplets, LayoutDashboard, ScrollText, Thermometer, UserRound, Users } from "lucide-react";
+import { toast } from "sonner";
 import { AppShell, type NavItem } from "@/components/app/app-shell";
+import { useStomp } from "@/hooks/use-stomp";
 
 const nav: NavItem[] = [
   { href: "/admin", label: "Tổng quan", icon: LayoutDashboard, exact: true },
@@ -14,9 +16,19 @@ const nav: NavItem[] = [
   { href: "/admin/logs", label: "Nhật ký thao tác", icon: ScrollText },
 ];
 
+/** Equipment incidents reported by staff reach the admin as they happen. */
+function AdminAlerts() {
+  useStomp(["/topic/admin/alerts"], (_t, body) => {
+    const n = (body ?? {}) as { title?: string; message?: string };
+    toast.warning(n.title ?? "Cảnh báo", { description: n.message, duration: 15000 });
+  });
+  return null;
+}
+
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   return (
     <AppShell roles={["ADMIN"]} nav={nav}>
+      <AdminAlerts />
       {children}
     </AppShell>
   );

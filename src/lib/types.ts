@@ -271,3 +271,120 @@ export type DonationDetail = {
     resultDate: string | null;
   } | null;
 };
+
+// ---- Staff portal
+export type StaffGeneralStat = {
+  pendingTestBloodBag: number;
+  pendingStorageBloodBag: number;
+  pendingRequest: number;
+  expiringBloodBag: number;
+  expiredBloodBag: number;
+};
+export type MyAssignment = {
+  eventId: number;
+  eventName: string;
+  startDate: string;
+  endDate: string;
+  location: string;
+  eventStatus: EventStatus;
+  role: AssignmentRole;
+  registeredCount: number;
+  actualCount: number;
+};
+export type EventDonor = {
+  regisId: number;
+  donorId: number;
+  ticketCode: string;
+  fullName: string;
+  gender: string | null;
+  dob: string | null;
+  phone: string;
+  address: string | null;
+  status: RegistrationStatus;
+};
+export type SuggestedBag = {
+  bloodBagId: number;
+  productType: ProductType;
+  bloodType: string;
+  rhFactor: string;
+  volume: number;
+  expiryDate: string;
+  bagCode: string;
+  storageLocation: string;
+  suggested: boolean;
+};
+export type PrintedLabel = {
+  bagCode: string;
+  barCodeBag: string;
+  bloodType: string;
+  rhFactor: string;
+  productType: ProductType;
+  expiryDate: string;
+  volume: number;
+};
+export type ReturnAction = "DANG_CHO" | "TIEU_HUY" | "KIEM_DINH";
+export type ReturnLogItem = {
+  logId: number;
+  bloodBagId: number;
+  productType: ProductType;
+  bloodType: string;
+  bagCode: string;
+  hospitalName: string;
+  reason: string | null;
+  actionTaken: ReturnAction | null;
+  staffName: string | null;
+  createdAt: string;
+  currentBagStatus: BloodBagStatus;
+};
+export type ReturnOrder = {
+  returnOrderId: number;
+  hospitalName: string;
+  createdAt: string;
+  processedBy: string | null;
+  totalCount: number;
+  pendingCount: number;
+  allProcessed: boolean;
+  bags: {
+    logId: number;
+    bloodBagId: number;
+    bagCode: string;
+    bloodType: string;
+    rhFactor: string;
+    productType: ProductType;
+    volume: number;
+    expiredAt: string;
+    currentStatus: BloodBagStatus;
+    expired: boolean;
+    actionTaken: ReturnAction | null;
+    reason: string | null;
+  }[];
+};
+export type BulkInspectResult = {
+  summary: string;
+  successCount: number;
+  pendingHuyCount: number;
+  pendingKiemDinhCount: number;
+  errors: string[];
+  allOrderProcessed: boolean;
+};
+
+export type BloodBagDetail = {
+  donorName: string | null;
+  collectedAt: string;
+  expirationDate: string | null;
+  bloodType: string | null;
+  rhFactor: string | null;
+  /** Nominal bag volume (250/350/450). */
+  actualVolume: number | null;
+  bagCode: string | null;
+  barcodeBase64: string | null;
+  hiv: TestValue | null;
+  hbv: TestValue | null;
+  hcv: TestValue | null;
+  syphilis: TestValue | null;
+  malaria: TestValue | null;
+  finalConclusion: string | null;
+  storageLocation: string;
+  status: BloodBagStatus;
+  productType: ProductType;
+};

@@ -12,7 +12,8 @@ New web client for [BloodBankManager](https://github.com/kiins3/BloodBankManager
 | Admin: dashboard with charts, campaigns and staff assignment, staff, hospitals, donors, blood inventory, storage equipment, audit log | ✅ Done |
 | Hospital: dashboard, blood requests (urgent or normal, edit once, cancel), delivery tracking, confirm receipt bag by bag with return reasons | ✅ Done |
 | Donor: campaigns and sign-up (84-day rule shown up front), QR tickets, donation history with screening and lab results, profile | ✅ Done |
-| Staff: reception (QR check-in), screening, collection, lab, separation, storage, distribution | ⏳ Next |
+| Staff (technical): donation-day desk with QR check-in, walk-ins, screening and collection, live updates over WebSocket; lab results, component separation, bag labels, discard and undo | ✅ Done |
+| Staff (inventory): storage into matching fridges and transfers, request review against stock, scan-to-export with FEFO suggestions, returns inspection, live alerts for new requests | ✅ Done |
 
 ## Run locally
 
@@ -35,6 +36,7 @@ New web client for [BloodBankManager](https://github.com/kiins3/BloodBankManager
 - **One API client** (`src/lib/api.ts`) adds the token, turns error responses into `ApiError` with the backend's Vietnamese message, and sends users back to login when the token expires.
 - **Role guard** (`src/components/app/app-shell.tsx`) reads the role from the JWT and keeps each role inside its own portal.
 - **Types** (`src/lib/types.ts`) mirror responses captured from the running API, since most controllers return `ResponseEntity<?>` and the OpenAPI spec has no response schemas.
+- **Realtime** (`src/hooks/use-stomp.ts`) subscribes to the backend's STOMP topics over SockJS: the donation-day desk refreshes when walk-ins register, inventory staff get a toast for each new hospital request, and admins see equipment incidents.
 - **Labels and formats** (`src/lib/format.ts`) map backend enums such as `DANG_MO` or `CHO_XET_NGHIEM` to Vietnamese labels and badge colours, and convert dates to the `dd-MM-yyyy HH:mm` format some request DTOs expect.
 
 ```
@@ -44,15 +46,17 @@ src/
 │   ├── (auth)/               login, register, forgot-password
 │   ├── admin/                admin portal
 │   ├── hospital/             hospital portal
-│   └── donor/                donor portal
+│   ├── donor/                donor portal
+│   └── staff/                staff portal (technical and inventory)
 ├── components/
 │   ├── ui/                   shadcn/ui components
 │   ├── app/                  shell, badges, stat cards, dialogs, pagination
 │   ├── admin/                admin forms
 │   ├── hospital/             request form, progress, receive dialog
 │   ├── donor/                event card, register button, QR ticket
+│   ├── staff/                screening, collection, lab, label, scanner dialogs
 │   └── landing/
-├── hooks/                    session, mutations, donor data
+├── hooks/                    session, mutations, portal data, STOMP
 └── lib/                      api client, auth, types, formatting
 ```
 

@@ -6,12 +6,12 @@ import type { BloodRequestSummary } from "@/lib/types";
 import { RequestItemChips, totalBags } from "./request-items";
 
 /** One request row in the hospital's lists; links to the detail page. */
-export function RequestRow({ r }: { r: BloodRequestSummary }) {
+export function RequestRow({ r, href, showHospital }: { r: BloodRequestSummary; href?: string; showHospital?: boolean }) {
   return (
-    <Link href={`/hospital/requests/${r.requestId}`} className="flex items-center gap-4 px-4 py-3.5 transition-colors hover:bg-muted/40">
+    <Link href={href ?? `/hospital/requests/${r.requestId}`} className="flex items-center gap-4 px-4 py-3.5 transition-colors hover:bg-muted/40">
       <div className="grid min-w-0 flex-1 gap-2">
         <div className="flex flex-wrap items-center gap-2">
-          <span className="font-medium">Yêu cầu #{r.requestId}</span>
+          <span className="font-medium">Yêu cầu #{r.requestId}{showHospital && ` · ${r.hospitalName}`}</span>
           <StatusBadge {...requestStatus[r.status]} />
           {r.priority === "KHAN_CAP" && <StatusBadge {...priority.KHAN_CAP} />}
         </div>
