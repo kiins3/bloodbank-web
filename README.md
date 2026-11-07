@@ -1,36 +1,57 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# BloodBank VN — Web
 
-## Getting Started
+New web client for [BloodBankManager](https://github.com/kiins3/BloodBankManager), a blood donation and blood bank management system. It replaces the original HTML/JS frontend ([BloodBankManagerFE](https://github.com/kiins3/BloodBankManagerFE)) portal by portal.
 
-First, run the development server:
+**Next.js 16 (App Router) · TypeScript · Tailwind CSS 4 · shadcn/ui (Base UI) · TanStack Query · React Hook Form + Zod · Recharts**
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## Status
+
+| Portal | State |
+|---|---|
+| Public site: landing page, upcoming campaigns, sign up, log in, password reset by email OTP | ✅ Done |
+| Admin: dashboard with charts, campaigns and staff assignment, staff, hospitals, donors, blood inventory, storage equipment, audit log | ✅ Done |
+| Hospital: blood requests and delivery tracking | ⏳ Next |
+| Donor: campaigns, QR tickets, donation history, lab results | ⏳ Next |
+| Staff: reception (QR check-in), screening, collection, lab, separation, storage, distribution | ⏳ Planned |
+
+## Run locally
+
+1. Start the API and load demo data (see [BloodBankManager](https://github.com/kiins3/BloodBankManager#run-it-locally)):
+   ```bash
+   docker compose up -d
+   python scripts/seed_demo.py
+   ```
+2. Start the web app:
+   ```bash
+   cp .env.example .env.local   # NEXT_PUBLIC_API_URL=http://localhost:8080
+   npm install
+   npm run dev
+   ```
+3. Open http://localhost:3000. The login page lists the demo accounts; click one to fill the form.
+
+## How it is built
+
+- **All portal pages are client components.** The API issues a JWT that the browser keeps, so data is fetched with TanStack Query from the browser; the public landing page is prerendered.
+- **One API client** (`src/lib/api.ts`) adds the token, turns error responses into `ApiError` with the backend's Vietnamese message, and sends users back to login when the token expires.
+- **Role guard** (`src/components/app/app-shell.tsx`) reads the role from the JWT and keeps each role inside its own portal.
+- **Types** (`src/lib/types.ts`) mirror responses captured from the running API, since most controllers return `ResponseEntity<?>` and the OpenAPI spec has no response schemas.
+- **Labels and formats** (`src/lib/format.ts`) map backend enums such as `DANG_MO` or `CHO_XET_NGHIEM` to Vietnamese labels and badge colours, and convert dates to the `dd-MM-yyyy HH:mm` format some request DTOs expect.
+
+```
+src/
+├── app/
+│   ├── page.tsx              landing page
+│   ├── (auth)/               login, register, forgot-password
+│   └── admin/                admin portal
+├── components/
+│   ├── ui/                   shadcn/ui components
+│   ├── app/                  shell, badges, stat cards, dialogs, pagination
+│   ├── admin/                admin forms
+│   └── landing/
+├── hooks/                    session, mutations
+└── lib/                      api client, auth, types, formatting
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Author
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+**Tran Hai Dang** — [GitHub](https://github.com/kiins3)
