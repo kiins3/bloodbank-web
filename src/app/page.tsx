@@ -77,7 +77,7 @@ export default function Home() {
                 <div><p className="text-2xl font-semibold">24/7</p><p className="text-xs text-muted-foreground">cảnh báo hết hạn</p></div>
               </div>
             </Card>
-            <Card className="absolute -bottom-6 -left-4 hidden flex-row items-center gap-3 p-3 shadow-lg sm:flex">
+            <Card className="absolute -top-8 -right-4 hidden flex-row items-center gap-3 p-3 shadow-lg sm:flex">
               <span className="grid size-9 place-items-center rounded-full bg-emerald-50 text-emerald-600"><Droplet className="size-4" /></span>
               <div>
                 <p className="text-sm font-medium">Túi máu BG-1024 đã sẵn sàng</p>
