@@ -15,7 +15,6 @@ import { Pagination } from "@/components/app/pagination";
 import { EmptyState, ErrorState, TableSkeleton } from "@/components/app/states";
 import { BloodTypeBadge, StatusBadge } from "@/components/app/status-badge";
 import { useApiMutation } from "@/hooks/use-api-mutation";
-import { useStaffProfile } from "@/hooks/use-staff";
 import { api, qs } from "@/lib/api";
 import { bagStatus, bloodGroup, fmtDate, fmtDateTime, productType, returnAction } from "@/lib/format";
 import type { BulkInspectResult, Page, ReturnAction, ReturnLogItem, ReturnOrder } from "@/lib/types";
@@ -24,7 +23,6 @@ import { cn } from "@/lib/utils";
 type Decision = { action: "TIEU_HUY" | "KIEM_DINH"; reason: string };
 
 function ReturnSheet({ orderId, onClose }: { orderId: number | null; onClose: () => void }) {
-  const profile = useStaffProfile();
   const { data, isLoading } = useQuery({
     queryKey: ["staff", "return", orderId],
     queryFn: () => api<ReturnOrder>(`/api/staff/return-log/return-detail/${orderId}`),
@@ -40,8 +38,6 @@ function ReturnSheet({ orderId, onClose }: { orderId: number | null; onClose: ()
     () =>
       api<BulkInspectResult>("/api/staff/return-log/inspect", {
         method: "POST",
-        // The endpoint identifies the inspector by header rather than by token.
-        headers: { "X-Staff-Id": String(profile.data?.staffId ?? "") },
         body: { returnOrderId: orderId, items: pending.map((b) => ({ bloodBagId: b.bloodBagId, ...decisionFor(b) })) },
       }),
     {
@@ -105,7 +101,7 @@ function ReturnSheet({ orderId, onClose }: { orderId: number | null; onClose: ()
               );
             })}
             {pending.length > 0 ? (
-              <Button onClick={() => inspect.mutate(undefined)} disabled={inspect.isPending || !profile.data}>
+              <Button onClick={() => inspect.mutate(undefined)} disabled={inspect.isPending}>
                 {inspect.isPending && <Loader2 className="animate-spin" />} Xác nhận kiểm tra {pending.length} túi
               </Button>
             ) : (

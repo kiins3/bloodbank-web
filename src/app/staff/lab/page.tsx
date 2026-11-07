@@ -4,8 +4,10 @@ import { Suspense, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { FlaskConical, Layers, Loader2, Mail, Printer, RotateCcw, Trash2 } from "lucide-react";
+import { CheckCircle2, FlaskConical, Layers, Loader2, Mail, Printer, RotateCcw, Trash2, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
 import { ConfirmDialog } from "@/components/app/confirm-dialog";
 import { FilterTabs } from "@/components/app/filter-tabs";
 import { PageHeader } from "@/components/app/page-header";
@@ -45,6 +47,30 @@ function SendResultButton({ bagId }: { bagId: number }) {
   );
 }
 
+type Requalify = { bloodBagIds: number[]; passed: boolean; note: string };
+
+/** Records the re-check of returned bags: passed bags go back to inventory, failed ones to disposal. */
+function FailDialog({ ids, onClose, onSubmit, pending }: { ids: number[] | null; onClose: () => void; onSubmit: (note: string) => void; pending: boolean }) {
+  const [note, setNote] = useState("");
+  return (
+    <Dialog open={!!ids} onOpenChange={(o) => !o && onClose()}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>{ids?.length} túi không đạt kiểm định</DialogTitle>
+          <DialogDescription>Các túi chuyển sang chờ hủy. Ghi lại lý do để tra cứu sau này.</DialogDescription>
+        </DialogHeader>
+        <Textarea rows={3} placeholder="Ví dụ: màu sắc bất thường, có cặn, nhiệt độ vận chuyển không đạt" value={note} onChange={(e) => setNote(e.target.value)} />
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose}>Hủy</Button>
+          <Button variant="destructive" disabled={!note.trim() || pending} onClick={() => onSubmit(note.trim())}>
+            {pending && <Loader2 className="animate-spin" />} Chuyển chờ hủy
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 function LabContent() {
   const params = useSearchParams();
   const router = useRouter();
@@ -65,6 +91,7 @@ function LabContent() {
   const [sepId, setSepId] = useState<number | null>(null);
   const [printed, setPrinted] = useState<PrintedLabel | null>(null);
   const [selected, setSelected] = useState<Set<number>>(new Set());
+  const [failIds, setFailIds] = useState<number[] | null>(null);
 
   const print = useApiMutation((id: number) => api<PrintedLabel>(`/api/staff/bloodbag/print-label/${id}`, { method: "POST" }), {
     invalidate: [["staff"]],
@@ -77,6 +104,11 @@ function LabContent() {
   const undo = useApiMutation((ids: number[]) => api<string>("/api/staff/bloodbag/undo-discard-blood", { method: "PATCH", body: ids }), {
     invalidate: [["staff"]],
     onSuccess: (m) => { toast.success(typeof m === "string" ? m : "Đã hoàn tác"); setSelected(new Set()); },
+  });
+
+  const requalify = useApiMutation((body: Requalify) => api<string>("/api/staff/bloodbag/requalify", { method: "PATCH", body }), {
+    invalidate: [["staff"]],
+    onSuccess: (m) => { toast.success(m); setSelected(new Set()); setFailIds(null); },
   });
 
   const counts: Record<Tab, number> = {
@@ -154,14 +186,37 @@ function LabContent() {
 
       {tab === "inspect" && (
         <>
-          <p className="mb-3 text-sm text-muted-foreground">Túi bệnh viện trả về, kho đã kiểm tra bên ngoài và chuyển sang cho kỹ thuật kiểm định.</p>
-          <BagTable query={inspect} empty="Không có túi chờ kiểm định" showLocation />
+          <div className="mb-3 flex flex-wrap items-center justify-between gap-2 rounded-lg border bg-background p-3 text-sm">
+            <span className="text-muted-foreground">Túi bệnh viện trả về, kho đã kiểm tra bên ngoài. Túi đạt quay lại chờ nhập kho, túi không đạt chuyển chờ hủy.</span>
+            <div className="flex gap-2">
+              <Button size="sm" variant="outline" disabled={!selected.size || requalify.isPending} onClick={() => setFailIds([...selected])}>
+                <XCircle /> Không đạt
+              </Button>
+              <Button size="sm" disabled={!selected.size || requalify.isPending} onClick={() => requalify.mutate({ bloodBagIds: [...selected], passed: true, note: "" })}>
+                {requalify.isPending ? <Loader2 className="animate-spin" /> : <CheckCircle2 />} Đạt, nhập lại kho
+              </Button>
+            </div>
+          </div>
+          <BagTable
+            query={inspect}
+            empty="Không có túi chờ kiểm định"
+            selected={selected}
+            onToggle={(id) => setSelected((s) => toggleIn(s, id))}
+            onToggleAll={(ids) => setSelected(new Set(ids))}
+          />
         </>
       )}
 
       <TestDialog key={`t${testId}`} bagId={testId} onClose={() => { setTestId(null); qc.invalidateQueries({ queryKey: ["staff", "bags"] }); }} />
       <SeparateDialog key={`s${sepId}`} bagId={sepId} onClose={() => setSepId(null)} />
       <LabelDialog label={printed} onClose={() => setPrinted(null)} />
+      <FailDialog
+        key={failIds?.join(",") ?? "none"}
+        ids={failIds}
+        pending={requalify.isPending}
+        onClose={() => setFailIds(null)}
+        onSubmit={(note) => requalify.mutate({ bloodBagIds: failIds ?? [], passed: false, note })}
+      />
     </>
   );
 }
