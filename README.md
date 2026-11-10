@@ -1,6 +1,8 @@
 # BloodBank VN — Web
 
-New web client for [BloodBankManager](https://github.com/kiins3/BloodBankManager), a blood donation and blood bank management system. It replaces the original HTML/JS frontend ([BloodBankManagerFE](https://github.com/kiins3/BloodBankManagerFE)) portal by portal.
+New web client for [BloodBankManager](https://github.com/kiins3/BloodBankManager), a blood donation and blood bank management system. It replaces the original HTML/JS frontend ([BloodBankManagerFE](https://github.com/kiins3/BloodBankManagerFE)).
+
+**Live demo:** https://bloodbank-vn.vercel.app. Demo accounts for every role are on the login page. The API runs on a free Render instance, so the first request after it has been idle takes about a minute.
 
 **Next.js 16 (App Router) · TypeScript · Tailwind CSS 4 · shadcn/ui (Base UI) · TanStack Query · React Hook Form + Zod · Recharts**
 
